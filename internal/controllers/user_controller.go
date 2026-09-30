@@ -1,9 +1,8 @@
 package controllers
 
 import (
-	"errors"
-
-	"tripo-backend/internal/repositories"
+	"tripo-backend/internal/dto"
+	"tripo-backend/internal/response"
 	"tripo-backend/internal/services"
 
 	"github.com/gofiber/fiber/v3"
@@ -18,26 +17,26 @@ func NewUserController(svc services.UserService) *UserController {
 }
 
 func (ctrl *UserController) Create(c fiber.Ctx) error {
-	var req createUserRequest
+	var req dto.CreateUserRequest
 	if err := c.Bind().Body(&req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+		return badRequest(c, "invalid request body")
 	}
 
-	user, err := ctrl.service.CreateUser(req.Name, req.Email)
+	user, err := ctrl.service.CreateUser(req)
 	if err != nil {
-		return mapServiceError(err)
+		return respondError(c, err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(user)
+	return response.Created(c, user)
 }
 
 func (ctrl *UserController) List(c fiber.Ctx) error {
 	users, err := ctrl.service.ListUsers()
 	if err != nil {
-		return mapServiceError(err)
+		return respondError(c, err)
 	}
 
-	return c.JSON(users)
+	return response.List(c, users, len(users))
 }
 
 func (ctrl *UserController) Get(c fiber.Ctx) error {
@@ -45,45 +44,34 @@ func (ctrl *UserController) Get(c fiber.Ctx) error {
 
 	user, err := ctrl.service.GetUser(id)
 	if err != nil {
-		return mapServiceError(err)
+		return respondError(c, err)
 	}
 
-	return c.JSON(user)
+	return response.OK(c, user)
 }
 
 func (ctrl *UserController) Update(c fiber.Ctx) error {
 	id := c.Params("id")
 
-	var req updateUserRequest
+	var req dto.UpdateUserRequest
 	if err := c.Bind().Body(&req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+		return badRequest(c, "invalid request body")
 	}
 
-	user, err := ctrl.service.UpdateUser(id, req.Name, req.Email)
+	user, err := ctrl.service.UpdateUser(id, req)
 	if err != nil {
-		return mapServiceError(err)
+		return respondError(c, err)
 	}
 
-	return c.JSON(user)
+	return response.OK(c, user)
 }
 
 func (ctrl *UserController) Delete(c fiber.Ctx) error {
 	id := c.Params("id")
 
 	if err := ctrl.service.DeleteUser(id); err != nil {
-		return mapServiceError(err)
+		return respondError(c, err)
 	}
 
-	return c.SendStatus(fiber.StatusNoContent)
-}
-
-func mapServiceError(err error) error {
-	switch {
-	case errors.Is(err, services.ErrInvalidInput):
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	case errors.Is(err, repositories.ErrUserNotFound):
-		return fiber.NewError(fiber.StatusNotFound, err.Error())
-	default:
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
+	return response.NoContent(c)
 }

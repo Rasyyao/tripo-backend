@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
-// Setup wires repositories, services and controllers, then registers routes.
 func Setup(app *fiber.App) {
 	userRepo := repositories.NewUserRepository()
 	userService := services.NewUserService(userRepo)

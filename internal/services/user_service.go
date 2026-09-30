@@ -1,20 +1,20 @@
 package services
 
 import (
-	"errors"
+	"strings"
 
+	"golang.org/x/crypto/bcrypt"
+
+	"tripo-backend/internal/dto"
 	"tripo-backend/internal/models"
 	"tripo-backend/internal/repositories"
 )
 
-var ErrInvalidInput = errors.New("invalid input")
-
-// UserService holds business logic and orchestrates repository calls.
 type UserService interface {
-	CreateUser(name, email string) (*models.User, error)
-	ListUsers() ([]*models.User, error)
-	GetUser(id string) (*models.User, error)
-	UpdateUser(id, name, email string) (*models.User, error)
+	CreateUser(req dto.CreateUserRequest) (*dto.UserResponse, error)
+	ListUsers() ([]*dto.UserResponse, error)
+	GetUser(id string) (*dto.UserResponse, error)
+	UpdateUser(id string, req dto.UpdateUserRequest) (*dto.UserResponse, error)
 	DeleteUser(id string) error
 }
 
@@ -26,47 +26,71 @@ func NewUserService(repo repositories.UserRepository) UserService {
 	return &userService{repo: repo}
 }
 
-func (s *userService) CreateUser(name, email string) (*models.User, error) {
-	if name == "" || email == "" {
-		return nil, ErrInvalidInput
+func (s *userService) CreateUser(req dto.CreateUserRequest) (*dto.UserResponse, error) {
+	name := strings.TrimSpace(req.Name)
+	email := normalizeEmail(req.Email)
+
+	if err := collect(validateName(name), validateEmail(email), validatePassword(req.Password)); err != nil {
+		return nil, err
 	}
 
-	user := &models.User{
-		DisplayName: &name,
-		Email:       email,
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
 	}
 
-	return s.repo.Create(user)
+	user, err := s.repo.Create(&models.User{
+		DisplayName:  &name,
+		Email:        email,
+		PasswordHash: string(hash),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return dto.NewUserResponse(user), nil
 }
 
-func (s *userService) ListUsers() ([]*models.User, error) {
-	return s.repo.FindAll()
+func (s *userService) ListUsers() ([]*dto.UserResponse, error) {
+	users, err := s.repo.FindAll()
+	if err != nil {
+		return nil, err
+	}
+	return dto.NewUserResponses(users), nil
 }
 
-func (s *userService) GetUser(id string) (*models.User, error) {
-	if id == "" {
-		return nil, ErrInvalidInput
+func (s *userService) GetUser(id string) (*dto.UserResponse, error) {
+	if err := collect(validateID(id)); err != nil {
+		return nil, err
 	}
-	return s.repo.FindByID(id)
+	user, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return dto.NewUserResponse(user), nil
 }
 
-func (s *userService) UpdateUser(id, name, email string) (*models.User, error) {
-	if id == "" || name == "" || email == "" {
-		return nil, ErrInvalidInput
+func (s *userService) UpdateUser(id string, req dto.UpdateUserRequest) (*dto.UserResponse, error) {
+	name := strings.TrimSpace(req.Name)
+	email := normalizeEmail(req.Email)
+
+	if err := collect(validateID(id), validateName(name), validateEmail(email)); err != nil {
+		return nil, err
 	}
 
-	user := &models.User{
+	user, err := s.repo.Update(&models.User{
 		ID:          id,
 		DisplayName: &name,
 		Email:       email,
+	})
+	if err != nil {
+		return nil, err
 	}
-
-	return s.repo.Update(user)
+	return dto.NewUserResponse(user), nil
 }
 
 func (s *userService) DeleteUser(id string) error {
-	if id == "" {
-		return ErrInvalidInput
+	if err := collect(validateID(id)); err != nil {
+		return err
 	}
 	return s.repo.Delete(id)
 }

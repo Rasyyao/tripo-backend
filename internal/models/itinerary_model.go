@@ -13,23 +13,23 @@ const (
 )
 
 type Itinerary struct {
-	ID                  string          `json:"id"`
-	UserID              string          `json:"user_id"`
-	Title               string          `json:"title"`
-	StartDate           time.Time       `json:"start_date"`
-	EndDate             time.Time       `json:"end_date"`
-	TotalBudgetEstimate float64         `json:"total_budget_estimate"`
-	Status              ItineraryStatus `json:"status"`
-	CoverImageURL       *string         `json:"cover_image_url"`
-	CreatedAt           time.Time       `json:"created_at"`
-	UpdatedAt           time.Time       `json:"updated_at"`
+	ID                  string
+	UserID              string
+	Title               string
+	StartDate           time.Time
+	EndDate             time.Time
+	TotalBudgetEstimate float64
+	Status              ItineraryStatus
+	CoverImageURL       *string
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 type ItineraryDay struct {
-	ID          string    `json:"id"`
-	ItineraryID string    `json:"itinerary_id"`
-	DayNumber   int       `json:"day_number"`
-	DayDate     time.Time `json:"day_date"`
+	ID          string
+	ItineraryID string
+	DayNumber   int
+	DayDate     time.Time
 }
 
 type StopStatus string
@@ -42,36 +42,36 @@ const (
 )
 
 type ItineraryStop struct {
-	ID             string     `json:"id"`
-	ItineraryDayID string     `json:"itinerary_day_id"`
-	PlaceID        string     `json:"place_id"`
-	StopOrder      int        `json:"stop_order"`
-	PlannedTime    *string    `json:"planned_time"` // "15:04:05"
-	BudgetEstimate float64    `json:"budget_estimate"`
-	Status         StopStatus `json:"status"`
-	ArrivedAt      *time.Time `json:"arrived_at"`
-	DepartedAt     *time.Time `json:"departed_at"`
-	Rating         *int16     `json:"rating"`
-	ActualPrice    *float64   `json:"actual_price"`
-	CreatedAt      time.Time  `json:"created_at"`
+	ID             string
+	ItineraryDayID string
+	PlaceID        string
+	StopOrder      int
+	PlannedTime    *string // "15:04:05"
+	BudgetEstimate float64
+	Status         StopStatus
+	ArrivedAt      *time.Time
+	DepartedAt     *time.Time
+	Rating         *int16
+	ActualPrice    *float64
+	CreatedAt      time.Time
 }
 
 type RouteLeg struct {
-	ID              string    `json:"id"`
-	ItineraryDayID  string    `json:"itinerary_day_id"`
-	FromStopID      string    `json:"from_stop_id"`
-	ToStopID        string    `json:"to_stop_id"`
-	DistanceMeters  *int      `json:"distance_meters"`
-	DurationSeconds *int      `json:"duration_seconds"`
-	Polyline        *string   `json:"polyline"`
-	ComputedAt      time.Time `json:"computed_at"`
+	ID              string
+	ItineraryDayID  string
+	FromStopID      string
+	ToStopID        string
+	DistanceMeters  *int
+	DurationSeconds *int
+	Polyline        *string
+	ComputedAt      time.Time
 }
 
 type ItineraryShare struct {
-	ID            string    `json:"id"`
-	ItineraryID   string    `json:"itinerary_id"`
-	ShareImageURL *string   `json:"share_image_url"`
-	ShareSlug     *string   `json:"share_slug"`
-	Platform      *string   `json:"platform"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID            string
+	ItineraryID   string
+	ShareImageURL *string
+	ShareSlug     *string
+	Platform      *string
+	CreatedAt     time.Time
 }
