@@ -29,7 +29,7 @@ var passwordRules = []passwordRule{
 	{"must be at least 8 characters", func(v string) bool { return len([]rune(v)) >= 8 }},
 	{"must contain an uppercase letter", upperRegex.MatchString},
 	{"must contain a number", digitRegex.MatchString},
-	{"must be at most 72 bytes", func(v string) bool { return len(v) <= 72 }}, // bcrypt limit
+	{"must be at most 72 bytes", func(v string) bool { return len(v) <= 72 }},
 }
 
 func normalizeEmail(email string) string {
@@ -76,7 +76,6 @@ func validatePassword(password string) []apperror.FieldError {
 	return failed
 }
 
-// collect merges field errors into one *ValidationError, or nil when all passed.
 func collect(groups ...[]apperror.FieldError) error {
 	var all []apperror.FieldError
 	for _, g := range groups {

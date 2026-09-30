@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"gorm.io/gorm"
+
 	"tripo-backend/internal/controllers"
 	"tripo-backend/internal/repositories"
 	"tripo-backend/internal/services"
@@ -8,8 +10,8 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
-func Setup(app *fiber.App) {
-	userRepo := repositories.NewUserRepository()
+func Setup(app *fiber.App, db *gorm.DB) {
+	userRepo := repositories.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
 
