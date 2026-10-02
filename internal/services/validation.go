@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"regexp"
 	"strings"
 
@@ -76,6 +77,13 @@ func validatePassword(password string) []apperror.FieldError {
 	return failed
 }
 
+func validateRequired(field, value string) []apperror.FieldError {
+	if strings.TrimSpace(value) == "" {
+		return []apperror.FieldError{{Field: field, Message: "is required"}}
+	}
+	return nil
+}
+
 func collect(groups ...[]apperror.FieldError) error {
 	var all []apperror.FieldError
 	for _, g := range groups {
@@ -86,3 +94,5 @@ func collect(groups ...[]apperror.FieldError) error {
 	}
 	return &apperror.ValidationError{Fields: all}
 }
+
+func isNotFound(err error) bool { return errors.Is(err, apperror.ErrNotFound) }

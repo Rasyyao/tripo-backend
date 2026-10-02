@@ -16,20 +16,6 @@ func NewUserController(svc services.UserService) *UserController {
 	return &UserController{service: svc}
 }
 
-func (ctrl *UserController) Create(c fiber.Ctx) error {
-	var req dto.CreateUserRequest
-	if err := c.Bind().Body(&req); err != nil {
-		return badRequest(c, "invalid request body")
-	}
-
-	user, err := ctrl.service.CreateUser(req)
-	if err != nil {
-		return respondError(c, err)
-	}
-
-	return response.Created(c, user)
-}
-
 func (ctrl *UserController) List(c fiber.Ctx) error {
 	users, err := ctrl.service.ListUsers()
 	if err != nil {

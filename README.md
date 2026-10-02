@@ -60,6 +60,9 @@ The API listens on `http://localhost:3000` by default.
 | `PGADMIN_DEFAULT_EMAIL`  | `admin@tripo.local`  | pgAdmin login email              |
 | `PGADMIN_DEFAULT_PASSWORD` | `admin`            | pgAdmin login password           |
 | `PGADMIN_PORT`           | `5050`               | Host port for pgAdmin            |
+| `JWT_SECRET`             | _(required)_         | HS256 signing key, 32+ characters |
+| `JWT_ACCESS_TTL`         | `15m`                | Access token lifetime            |
+| `JWT_REFRESH_TTL`        | `720h`               | Refresh token lifetime           |
 
 Change the default credentials before using this outside local development.
 
@@ -79,13 +82,18 @@ pgAdmin is available at `http://localhost:5050` with the `tripo` server pre-regi
 
 Base path: `/api/v1`
 
-| Method | Endpoint      | Description     |
-| ------ | ------------- | --------------- |
-| POST   | `/users`      | Create a user   |
-| GET    | `/users`      | List users      |
-| GET    | `/users/:id`  | Get a user      |
-| PUT    | `/users/:id`  | Update a user   |
-| DELETE | `/users/:id`  | Delete a user   |
+| Method | Endpoint         | Auth   | Description                                  |
+| ------ | ---------------- | ------ | -------------------------------------------- |
+| POST   | `/auth/register` | public | Create an account, returns user + tokens     |
+| POST   | `/auth/login`    | public | Log in, returns user + tokens                |
+| POST   | `/auth/refresh`  | public | Rotate a refresh token for a new token pair  |
+| POST   | `/auth/logout`   | public | Revoke a refresh token                       |
+| GET    | `/users`         | Bearer | List users                                   |
+| GET    | `/users/:id`     | Bearer | Get a user                                   |
+| PUT    | `/users/:id`     | Bearer | Update a user                                |
+| DELETE | `/users/:id`     | Bearer | Delete a user                                |
+
+Protected routes need `Authorization: Bearer <access_token>`. See [docs/CODEBASE.md](docs/CODEBASE.md) for a reference of every type and function.
 
 ## Development
 

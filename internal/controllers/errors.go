@@ -25,6 +25,10 @@ func respondError(c fiber.Ctx, err error) error {
 			"one or more fields are invalid", validationErr.Fields)
 	case errors.Is(err, apperror.ErrNotFound):
 		return response.Error(c, fiber.StatusNotFound, "not_found", err.Error(), nil)
+	case errors.Is(err, apperror.ErrUnauthorized):
+		return response.Error(c, fiber.StatusUnauthorized, "unauthorized", err.Error(), nil)
+	case errors.Is(err, apperror.ErrBadRequest):
+		return response.Error(c, fiber.StatusBadRequest, "bad_request", err.Error(), nil)
 	case errors.Is(err, apperror.ErrConflict):
 		return response.Error(c, fiber.StatusConflict, "conflict", err.Error(), nil)
 	default:

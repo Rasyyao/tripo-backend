@@ -15,6 +15,7 @@ type UserRepository interface {
 	Create(user *models.User) (*models.User, error)
 	FindAll() ([]*models.User, error)
 	FindByID(id string) (*models.User, error)
+	FindByEmail(email string) (*models.User, error)
 	Update(user *models.User) (*models.User, error)
 	Delete(id string) error
 }
@@ -60,6 +61,14 @@ func (r *userRepository) FindAll() ([]*models.User, error) {
 func (r *userRepository) FindByID(id string) (*models.User, error) {
 	var user models.User
 	if err := r.db.First(&user, "id = ?", id).Error; err != nil {
+		return nil, mapErr(err)
+	}
+	return &user, nil
+}
+
+func (r *userRepository) FindByEmail(email string) (*models.User, error) {
+	var user models.User
+	if err := r.db.First(&user, "email = ?", email).Error; err != nil {
 		return nil, mapErr(err)
 	}
 	return &user, nil

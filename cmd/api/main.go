@@ -12,6 +12,9 @@ import (
 
 func main() {
 	cfg := config.Load()
+	if err := cfg.Validate(); err != nil {
+		log.Fatal(err)
+	}
 
 	db, err := database.Connect(cfg.DB)
 	if err != nil {
@@ -23,7 +26,7 @@ func main() {
 
 	app := fiber.New()
 
-	routes.Setup(app, db)
+	routes.Setup(app, db, cfg)
 
 	log.Printf("server listening on :%s", cfg.AppPort)
 	if err := app.Listen(":" + cfg.AppPort); err != nil {

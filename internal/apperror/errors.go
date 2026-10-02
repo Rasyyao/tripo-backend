@@ -8,9 +8,24 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("resource not found")
-	ErrConflict = errors.New("resource already exists")
+	ErrNotFound     = errors.New("resource not found")
+	ErrConflict     = errors.New("resource already exists")
+	ErrBadRequest   = errors.New("bad request")
+	ErrUnauthorized = errors.New("unauthorized")
 )
+
+// Error pairs a sentinel Kind (used for status mapping) with a client-facing message.
+type Error struct {
+	Kind    error
+	Message string
+}
+
+func (e *Error) Error() string { return e.Message }
+func (e *Error) Unwrap() error { return e.Kind }
+
+func New(kind error, message string) error {
+	return &Error{Kind: kind, Message: message}
+}
 
 type FieldError struct {
 	Field   string `json:"field"`
