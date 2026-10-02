@@ -28,7 +28,7 @@ type AuthService interface {
 	Register(req dto.RegisterRequest) (*dto.AuthResponse, error)
 	Login(req dto.LoginRequest) (*dto.AuthResponse, error)
 	Refresh(req dto.RefreshRequest) (*dto.TokenResponse, error)
-	Logout(req dto.RefreshRequest) error
+	Logout(req dto.RefreshRequest) (*dto.MessageResponse, error)
 }
 
 type authService struct {
@@ -140,23 +140,27 @@ func (s *authService) Refresh(req dto.RefreshRequest) (*dto.TokenResponse, error
 
 // Logout revokes the presented refresh token. It is idempotent: unknown,
 // expired or already-revoked tokens are not an error.
-func (s *authService) Logout(req dto.RefreshRequest) error {
+func (s *authService) Logout(req dto.RefreshRequest) (*dto.MessageResponse, error) {
+	done := dto.NewMessageResponse("logged out successfully")
+
 	if err := collect(validateRequired("refresh_token", req.RefreshToken)); err != nil {
-		return err
+		return nil, err
 	}
 	if _, err := s.jwt.ParseRefresh(req.RefreshToken); err != nil {
-		return nil
+		return done, nil
 	}
 
 	stored, err := s.tokens.FindByHash(auth.HashToken(req.RefreshToken))
 	if err != nil {
 		if isNotFound(err) {
-			return nil
+			return done, nil
 		}
-		return err
+		return nil, err
 	}
-	_, err = s.tokens.Revoke(stored.ID)
-	return err
+	if _, err := s.tokens.Revoke(stored.ID); err != nil {
+		return nil, err
+	}
+	return done, nil
 }
 
 func (s *authService) authResponse(user *models.User) (*dto.AuthResponse, error) {

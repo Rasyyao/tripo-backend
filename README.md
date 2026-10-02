@@ -98,6 +98,8 @@ Protected routes need `Authorization: Bearer <access_token>`. See [docs/CODEBASE
 ## Development
 
 ```bash
+make routes                       # list all routes (like Laravel route:list)
+make routes ARGS="-method POST"   # filter by method; -path auth filters by URI
 go build ./...   # compile
 go vet ./...     # static checks
 go test ./...    # run tests

@@ -61,8 +61,9 @@ func (ctrl *AuthController) Logout(c fiber.Ctx) error {
 		return badRequest(c, "invalid request body")
 	}
 
-	if err := ctrl.service.Logout(req); err != nil {
+	res, err := ctrl.service.Logout(req)
+	if err != nil {
 		return respondError(c, err)
 	}
-	return response.NoContent(c)
+	return response.OK(c, res)
 }

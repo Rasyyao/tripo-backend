@@ -55,9 +55,10 @@ func (ctrl *UserController) Update(c fiber.Ctx) error {
 func (ctrl *UserController) Delete(c fiber.Ctx) error {
 	id := c.Params("id")
 
-	if err := ctrl.service.DeleteUser(id); err != nil {
+	res, err := ctrl.service.DeleteUser(id)
+	if err != nil {
 		return respondError(c, err)
 	}
 
-	return response.NoContent(c)
+	return response.OK(c, res)
 }
